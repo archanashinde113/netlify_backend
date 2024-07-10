@@ -19,7 +19,6 @@ const createProject = async (req, res) => {
       Location,
       status,
     });
-
     await newProject.save();
     res.status(201).json(newProject);
   } catch (error) {
@@ -75,10 +74,11 @@ const counterproject = async (req, res) => {
 };
 
 const delaycounterproject = async(req,res) =>{
+  const today = new Date();
   try {
     const runningDelayedProjects = await Project.countDocuments({
       status: 'Running',
-      end_date: { $lt: new Date() },
+      endDate: { $lt: new today() },
     });
 
     res.json({ running_delayed_projects: runningDelayedProjects });
