@@ -39,37 +39,37 @@ exports.login = async (req, res) => {
 
   try {
     // Check if the user exists
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
     if (!user) {
-      console.log('User not found for email:', email);
-      return res.status(400).send('Invalid email or password');
+      return res.status(400).json({ msg: 'Invalid credentials' });
     }
-
-    console.log('User found:', user);
 
     // Compare the password with the hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     
-    // Logging the comparison values
-    console.log('Entered Password:', password);
-    console.log('Stored Hashed Password:', user.password);
-    console.log('Password Match:', isMatch);
-
     if (!isMatch) {
-      console.log('Password does not match for email:', email);
-      return res.status(400).send('Invalid email or password');
+      return res.status(400).json({ msg: 'Invalid credentials' });
     }
-
-    console.log('Password matches');
-
+    
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
+  
     // Generate JWT
-    const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
-    console.log('Generated JWT for user:', user.email);
-
-    res.status(200).json({ token });
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: 3600 },
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      }
+    );
   } catch (err) {
-    console.error('Error logging in user:', err);
-    res.status(500).send('Internal server error');
+    console.error(err.message);
+    res.status(500).send('Server Error');
   }
 };
 
