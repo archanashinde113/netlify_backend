@@ -1,8 +1,6 @@
-// controllers/projectControllers.js
+
 const Project = require('../models/addproject');
 
-
-// Controller to create a new project
 const createProject = async (req, res) => {
   try {
     const { projectName, Reason, Type, Division, Category, Priority, Department, startDate, endDate, Location, status } = req.body;
@@ -19,6 +17,7 @@ const createProject = async (req, res) => {
       Location,
       status,
     });
+
     await newProject.save();
     res.status(201).json(newProject);
   } catch (error) {
@@ -73,13 +72,13 @@ const counterproject = async (req, res) => {
   }
 };
 
-const today = new Date();
+
 const delaycounterproject = async(req,res) =>{
-  res.json("hello");
   try {
+    const today = new Date();
     const runningDelayedProjects = await Project.countDocuments({
       status: 'Running',
-      endDate: { $lt: today }
+      endDate: { $lt: today },
     });
 
     res.json({ running_delayed_projects: runningDelayedProjects });
